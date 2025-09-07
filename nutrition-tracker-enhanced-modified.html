@@ -1,0 +1,2880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Nutrition Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto 40px auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: visible;
+            position: relative;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 20px 20px 0 0;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .date-display {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .calorie-overview {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .calorie-bar {
+            width: 100%;
+            height: 40px;
+            background: #e9ecef;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 15px 0;
+            position: relative;
+        }
+        
+        .calorie-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #48bb78 0%, #38a169 100%);
+            border-radius: 20px;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .food-input {
+            padding: 20px;
+            background: #f8f9fa;
+            margin: 0 20px 20px;
+            border-radius: 10px;
+            position: relative;
+            overflow: visible;
+        }
+        
+        .food-input h2 {
+            margin-bottom: 15px;
+            color: #495057;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .input-group select,
+        .input-group input {
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .input-group select {
+            flex: 2;
+            min-width: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .input-group input {
+            flex: 1;
+            min-width: 100px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .custom-nutrient-panel {
+            display: none;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .custom-nutrient-panel h4 {
+            color: #495057;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nutrient-input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .nutrient-input-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .nutrient-input-item label {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 3px;
+        }
+        
+        .nutrient-input-item input {
+            padding: 5px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .nutrient-category-header {
+            grid-column: 1 / -1;
+            font-weight: bold;
+            color: #495057;
+            margin-top: 10px;
+            padding: 5px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .toggle-nutrients-btn {
+            background: #17a2b8;
+            padding: 8px 15px;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+        
+        .preset-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        
+        .preset-btn {
+            background: #6c757d;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        
+        .nutrient-table {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            padding: 20px;
+            padding-bottom: 40px;
+        }
+
+        .nutrient-table h2 {
+            margin-bottom: 20px;
+            color: #495057;
+        }
+
+        .nutrient-table table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+        }
+
+        .nutrient-table th, .nutrient-table td {
+            background: #fff;
+            color: #495057;
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: normal;
+        }
+
+        .nutrient-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+            text-align: left;
+            padding: 15px;
+        }
+
+        .nutrient-table .group-header td {
+            background: #f5f6fa !important;
+            color: #495057;
+            font-weight: bold;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .progress-cell {
+            width: 150px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .progress-low { background: #e74c3c; }
+        .progress-medium { background: #f39c12; }
+        .progress-good { background: #48bb78; }
+        .progress-complete { background: #38a169; }
+        
+        .food-log {
+            padding: 20px;
+            background: #f8f9fa;
+            margin: 20px;
+            border-radius: 10px;
+        }
+        
+        .food-log h3 {
+            margin-bottom: 15px;
+            color: #495057;
+        }
+        
+        .food-log-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 2fr auto;
+            gap: 10px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+        
+        .log-item {
+            background: white;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 2fr auto;
+            gap: 10px;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        
+        .log-item:hover {
+            background: #f8f9fa;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .log-item-name {
+            font-weight: 500;
+            color: #2d3748;
+            padding: 6px 8px;
+        }
+        
+        .log-item input {
+            padding: 6px 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 14px;
+            background: transparent;
+            transition: all 0.2s;
+            width: 100%;
+        }
+        
+        .log-item input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+        
+        .log-item input[type="number"] {
+            text-align: center;
+        }
+        
+        .log-item-editable {
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .log-item-description {
+            font-style: italic;
+            color: #718096;
+            font-weight: normal;
+        }
+        
+        .log-item-description::placeholder {
+            color: #cbd5e0;
+            font-style: italic;
+        }
+        
+        .log-total-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 2fr auto;
+            gap: 10px;
+            padding: 10px;
+            margin-top: 10px;
+            background: #f1f3f5;
+            border-radius: 5px;
+            font-weight: bold;
+            border: 2px solid #e9ecef;
+        }
+        
+        .remove-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .recommendations {
+            background: #e8f5e9;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 10px;
+            border: 2px solid #4caf50;
+        }
+        
+        .recommendations h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+        }
+        
+        .recommendation-item {
+            padding: 8px 0;
+            color: #1b5e20;
+        }
+        
+        .priority-high {
+            font-weight: bold;
+            color: #c62828;
+        }
+        
+        .priority-medium {
+            color: #f57c00;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Modal styles for editing custom food nutrients */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .modal-header h3 {
+            color: #495057;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #6c757d;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-modal:hover {
+            color: #495057;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🥗 Daily Nutrition Tracker</h1>
+            <div class="date-display" id="currentDate"></div>
+        </header>
+        
+        <div class="calorie-overview">
+            <h2>Calorie Progress</h2>
+            <div class="calorie-bar">
+                <div class="calorie-progress" id="calorieProgress">
+                    <span id="calorieText">0 / 2000 kcal</span>
+                </div>
+            </div>
+            <div id="caloriePercent">0% of daily goal</div>
+        </div>
+        
+        <div class="food-input">
+            <h2>➕ Add Food</h2>
+            <div class="input-group">
+                <select id="foodSelect">
+                    <option value="">Select a food...</option>
+                    <optgroup label="Proteins">
+                        <option value="salmon">Salmon 🐟</option>
+                        <option value="chicken">Chicken Breast 🍗</option>
+                        <option value="eggs">Eggs 🥚</option>
+                        <option value="greek_yogurt">Greek Yogurt (non-fat) 🥛</option>
+                        <option value="tofu">Tofu (firm) 🧈</option>
+                        <option value="lentils">Lentils (cooked) 🫘</option>
+                    </optgroup>
+                    <optgroup label="Grains">
+                        <option value="oats">Rolled Oats 🌾</option>
+                        <option value="brown_rice">Brown Rice (cooked) 🍚</option>
+                        <option value="sourdough">Whole Wheat Sourdough 🍞</option>
+                        <option value="soba">Soba Noodles (cooked) 🍜</option>
+                    </optgroup>
+                    <optgroup label="Vegetables">
+                        <option value="spinach">Spinach 🥬</option>
+                        <option value="green_pepper">Green Bell Pepper 🫑</option>
+                        <option value="red_pepper">Red Bell Pepper 🌶️</option>
+                        <option value="broccoli">Broccoli 🥦</option>
+                        <option value="carrots">Carrots 🥕</option>
+                        <option value="brussels">Brussels Sprouts 🥬</option>
+                        <option value="cauliflower">Cauliflower 🥦</option>
+                        <option value="wood_ear">Wood Ear Mushrooms (dried) 🍄</option>
+                    </optgroup>
+                    <optgroup label="Fruits & Nuts">
+                        <option value="berries">Mixed Berries 🫐</option>
+                        <option value="kiwifruit">Kiwifruit 🥝</option>
+                        <option value="almonds">Almonds 🥜</option>
+                        <option value="walnuts">Walnuts 🌰</option>
+                        <option value="pistachios">Pistachios 🥜</option>
+                        <option value="chia">Chia Seeds 🌱</option>
+                        <option value="avocado">Avocado 🥑</option>
+                    </optgroup>
+                    <optgroup label="Beverages">
+                        <option value="milk">Milk 🥛</option>
+                        <option value="coconut_water">Coconut Water 🥥</option>
+                        <option value="bone_broth">Bone Broth 🍲</option>
+                    </optgroup>
+                    <option value="custom">Custom Food ✏️</option>
+                </select>
+                <input type="number" id="amountInput" placeholder="Amount (g/ml)" min="0">
+                <input type="number" id="calorieOverride" placeholder="Cal. override" min="0">
+            </div>
+            <div class="input-group" id="customFoodInput" style="display: none;">
+                <input type="text" id="customFoodName" placeholder="Enter food name" style="flex: 2;">
+                <button class="toggle-nutrients-btn" onclick="toggleCustomNutrients()">📊 Set Nutrients</button>
+            </div>
+            <button id="addFoodButton" onclick="addFood()" style="width:100%; margin-top:10px; font-size:15px; padding:16px 0;">Add Food</button>
+        </div>
+            
+            <!-- Custom Nutrient Panel -->
+            <div class="custom-nutrient-panel" id="customNutrientPanel">
+                <h4>
+                    Custom Food Nutrients (per 100g)
+                    <button class="preset-btn" onclick="clearAllNutrients()">Clear All</button>
+                </h4>
+                <div class="preset-buttons">
+                    <button class="preset-btn" onclick="loadPreset('protein_shake')">Protein Shake</button>
+                    <button class="preset-btn" onclick="loadPreset('multivitamin')">Multivitamin</button>
+                    <button class="preset-btn" onclick="loadPreset('protein_bar')">Protein Bar</button>
+                    <button class="preset-btn" onclick="loadPreset('supplement')">Supplement</button>
+                </div>
+                <div class="nutrient-input-grid" id="customNutrientGrid">
+                    <!-- Nutrient inputs will be generated here -->
+                </div>
+            </div>
+        </div>
+                        
+        
+        <div class="data-controls" style="padding: 20px; background: #f8f9fa; margin: 0 20px 20px; border-radius: 10px;">
+            <h3 style="margin-bottom: 15px; color: #495057;">📊 Data Management</h3>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                <button onclick="showHistory()" style="background: #17a2b8;">📅 View History</button>
+                <button onclick="exportToCSV()" style="background: #6610f2;">📊 Export to CSV</button>
+                <input type="date" id="dateSelector" onchange="loadDate(this.value)" style="padding: 10px; border: 2px solid #dee2e6; border-radius: 8px;">
+                <span id="autoSaveStatus" style="margin-left: auto; color: #28a745; font-weight: bold;">✓ Auto-saving enabled</span>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center; margin-top: 15px; padding: 15px; background: white; border-radius: 8px;">
+                <label style="font-weight: bold; color: #495057;">⚖️ Today's Weight:</label>
+                <input type="number" id="weightInput" placeholder="Weight (kg)" step="0.1" min="0" max="200" 
+                       style="padding: 8px; border: 2px solid #dee2e6; border-radius: 5px; width: 120px;">
+                <button onclick="saveWeight()" style="background: #007bff; padding: 8px 20px;">Save Weight</button>
+                <span id="weightDisplay" style="margin-left: 20px; font-weight: bold; color: #28a745;"></span>
+            </div>
+            <div id="historyList" style="margin-top: 15px; display: none;">
+                <h4>Saved Days:</h4>
+                <div id="historyItems"></div>
+            </div>
+        </div>
+        
+        <div class="food-log">
+            <h3>📝 Today's Food Log</h3>
+            <div id="foodLogList"></div>
+        </div>
+        
+        <div class="recommendations" id="recommendations" style="display: none;">
+            <h3>💡 Recommendations for the Rest of Your Day</h3>
+            <div id="recommendationsList"></div>
+        </div>
+        
+        <div class="nutrient-table">
+            <h2>📈 Nutrient Progress</h2>
+            <table id="nutrientTable">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Target</th>
+                        <th>Current</th>
+                        <th>Benefit</th>
+                        <th>Progress</th>
+                    </tr>
+                </thead>
+                <tbody id="nutrientTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        // Nutrient targets based on your requirements
+        const nutrientTargets = {
+            macronutrients: {
+                protein: { target: 90, unit: 'g', benefit: 'Satiety, muscle preservation, metabolism', priority: 'fat loss, skin' },
+                fats: { target: 57.5, unit: 'g', benefit: 'Hormones, HDL cholesterol, vitamin absorption', priority: 'cholesterol, skin' },
+                carbohydrates: { target: 155, unit: 'g', benefit: 'Energy, gut bacteria, blood sugar regulation', priority: 'fat loss, digestive' }
+            },
+            fatSolubleVitamins: {
+                vitaminA: { target: 700, unit: 'mcg', benefit: 'Collagen, skin turnover, immunity', priority: 'skin' },
+                vitaminD: { target: 17.5, unit: 'mcg', benefit: 'Calcium absorption, bones, immunity', priority: null },
+                vitaminE: { target: 15, unit: 'mg', benefit: 'Antioxidant, skin protection', priority: 'skin, cholesterol' },
+                vitaminK: { target: 90, unit: 'mcg', benefit: 'Blood clotting, bone proteins', priority: null }
+            },
+            waterSolubleVitamins: {
+                vitaminC: { target: 75, unit: 'mg', benefit: 'Collagen synthesis, wound healing', priority: 'skin' },
+                b1: { target: 1.1, unit: 'mg', benefit: 'Energy metabolism, nerve function', priority: null },
+                b2: { target: 1.1, unit: 'mg', benefit: 'Cell growth, energy production', priority: null },
+                b3: { target: 14, unit: 'mg', benefit: 'DNA repair, cholesterol levels', priority: 'cholesterol' },
+                b5: { target: 5, unit: 'mg', benefit: 'Fat metabolism, stress hormones', priority: 'fat loss' },
+                b6: { target: 1.3, unit: 'mg', benefit: 'Protein metabolism, heart health', priority: 'cholesterol' },
+                b7: { target: 30, unit: 'mcg', benefit: 'Hair/nail/skin health', priority: 'skin' },
+                b9: { target: 400, unit: 'mcg', benefit: 'DNA synthesis, red blood cells', priority: null },
+                b12: { target: 2.4, unit: 'mcg', benefit: 'Brain health, red blood cells', priority: null }
+            },
+            majorMinerals: {
+                calcium: { target: 1000, unit: 'mg', benefit: 'Bone strength, muscle contractions', priority: null },
+                phosphorus: { target: 700, unit: 'mg', benefit: 'Bones, energy storage', priority: null },
+                potassium: { target: 2900, unit: 'mg', benefit: 'Blood pressure, fluid balance', priority: 'cholesterol, digestive' },
+                magnesium: { target: 315, unit: 'mg', benefit: 'Enzyme reactions, blood sugar', priority: 'fat loss, digestive' },
+                sodium: { target: 2300, unit: 'mg', benefit: 'Fluid balance (limit)', priority: 'cholesterol' }
+            },
+            traceMinerals: {
+                iron: { target: 18, unit: 'mg', benefit: 'Oxygen transport, prevents anemia', priority: null },
+                zinc: { target: 8, unit: 'mg', benefit: 'Immunity, wound healing, skin', priority: 'skin, digestive' },
+                iodine: { target: 150, unit: 'mcg', benefit: 'Thyroid, metabolism', priority: 'fat loss' },
+                selenium: { target: 55, unit: 'mcg', benefit: 'Antioxidant, thyroid, immunity', priority: 'skin' },
+                copper: { target: 900, unit: 'mcg', benefit: 'Iron absorption, collagen', priority: 'skin' },
+                manganese: { target: 1.8, unit: 'mg', benefit: 'Bone formation, metabolism', priority: null },
+                chromium: { target: 25, unit: 'mcg', benefit: 'Insulin sensitivity, glucose', priority: 'fat loss' }
+            },
+            additional: {
+                fiber: { target: 30, unit: 'g', benefit: 'Satiety, gut health, digestion', priority: 'fat loss, digestive' },
+                omega3: { target: 1.5, unit: 'g', benefit: 'Inflammation, HDL, heart health', priority: 'cholesterol, skin' }
+            }
+        };
+        
+        // Food database with nutrient content per 100g
+        const foodDatabase = {
+            salmon: {
+                name: 'Salmon',
+                per100g: {
+                    calories: 204,
+                    protein: 22.6,
+                    fats: 11.3,
+                    carbohydrates: 0,
+                    vitaminA: 50,
+                    vitaminD: 10,
+                    vitaminE: 3.6,
+                    vitaminK: 0.5,
+                    vitaminC: 0,
+                    b1: 0.2,
+                    b2: 0.4,
+                    b3: 8,
+                    b5: 1.4,
+                    b6: 0.6,
+                    b7: 5,
+                    b9: 25,
+                    b12: 4.8,
+                    calcium: 12,
+                    phosphorus: 247,
+                    potassium: 384,
+                    magnesium: 30,
+                    sodium: 50,
+                    iron: 0.8,
+                    zinc: 0.6,
+                    iodine: 30,
+                    selenium: 40,
+                    copper: 50,
+                    manganese: 0.02,
+                    chromium: 0.5,
+                    fiber: 0,
+                    omega3: 2.2
+                }
+            },
+            chicken: {
+                name: 'Chicken Breast',
+                per100g: {
+                    calories: 161,
+                    protein: 23.5,
+                    fats: 7,
+                    carbohydrates: 0,
+                    vitaminA: 10,
+                    vitaminD: 0.1,
+                    vitaminE: 0.3,
+                    vitaminK: 0.3,
+                    vitaminC: 0,
+                    b1: 0.07,
+                    b2: 0.11,
+                    b3: 14,
+                    b5: 1.3,
+                    b6: 0.87,
+                    b7: 1,
+                    b9: 4,
+                    b12: 0.3,
+                    calcium: 11,
+                    phosphorus: 200,
+                    potassium: 256,
+                    magnesium: 25,
+                    sodium: 70,
+                    iron: 0.7,
+                    zinc: 2,
+                    iodine: 10,
+                    selenium: 30,
+                    copper: 40,
+                    manganese: 0.02,
+                    chromium: 2,
+                    fiber: 0,
+                    omega3: 0.1
+                }
+            },
+            eggs: {
+                name: 'Eggs',
+                per100g: {
+                    calories: 140,
+                    protein: 12,
+                    fats: 10,
+                    carbohydrates: 1,
+                    vitaminA: 160,
+                    vitaminD: 2,
+                    vitaminE: 1,
+                    vitaminK: 0.3,
+                    vitaminC: 0,
+                    b1: 0.04,
+                    b2: 0.5,
+                    b3: 0.1,
+                    b5: 1.3,
+                    b6: 0.17,
+                    b7: 20,
+                    b9: 47,
+                    b12: 1.2,
+                    calcium: 56,
+                    phosphorus: 198,
+                    potassium: 138,
+                    magnesium: 12,
+                    sodium: 142,
+                    iron: 1.8,
+                    zinc: 1.3,
+                    iodine: 50,
+                    selenium: 30,
+                    copper: 70,
+                    manganese: 0.03,
+                    chromium: 5,
+                    fiber: 0,
+                    omega3: 0.1
+                }
+            },
+            greek_yogurt: {
+                name: 'Greek Yogurt',
+                per100g: {
+                    calories: 59,
+                    protein: 10,
+                    fats: 0.4,
+                    carbohydrates: 3.6,
+                    vitaminA: 10,
+                    vitaminD: 0,
+                    vitaminE: 0.01,
+                    vitaminK: 0.2,
+                    vitaminC: 0.5,
+                    b1: 0.04,
+                    b2: 0.25,
+                    b3: 0.2,
+                    b5: 0.4,
+                    b6: 0.06,
+                    b7: 2,
+                    b9: 7,
+                    b12: 0.9,
+                    calcium: 120,
+                    phosphorus: 135,
+                    potassium: 155,
+                    magnesium: 13,
+                    sodium: 50,
+                    iron: 0.04,
+                    zinc: 1,
+                    iodine: 50,
+                    selenium: 2.2,
+                    copper: 10,
+                    manganese: 0.01,
+                    chromium: 1,
+                    fiber: 0,
+                    omega3: 0
+                }
+            },
+            tofu: {
+                name: 'Tofu',
+                per100g: {
+                    calories: 80,
+                    protein: 8,
+                    fats: 4.8,
+                    carbohydrates: 1.9,
+                    vitaminA: 0,
+                    vitaminD: 0,
+                    vitaminE: 0.01,
+                    vitaminK: 2,
+                    vitaminC: 0.1,
+                    b1: 0.08,
+                    b2: 0.05,
+                    b3: 0.2,
+                    b5: 0.1,
+                    b6: 0.05,
+                    b7: 2,
+                    b9: 15,
+                    b12: 0,
+                    calcium: 140,
+                    phosphorus: 97,
+                    potassium: 121,
+                    magnesium: 30,
+                    sodium: 7,
+                    iron: 2.7,
+                    zinc: 0.8,
+                    iodine: 5,
+                    selenium: 9,
+                    copper: 200,
+                    manganese: 0.6,
+                    chromium: 2,
+                    fiber: 0.3,
+                    omega3: 0.3
+                }
+            },
+            lentils: {
+                name: 'Lentils (cooked)',
+                per100g: {
+                    calories: 115,
+                    protein: 9,
+                    fats: 0.4,
+                    carbohydrates: 20,
+                    vitaminA: 8,
+                    vitaminD: 0,
+                    vitaminE: 0.5,
+                    vitaminK: 1.7,
+                    vitaminC: 1.5,
+                    b1: 0.2,
+                    b2: 0.07,
+                    b3: 1,
+                    b5: 0.6,
+                    b6: 0.18,
+                    b7: 3,
+                    b9: 180,
+                    b12: 0,
+                    calcium: 19,
+                    phosphorus: 180,
+                    potassium: 365,
+                    magnesium: 36,
+                    sodium: 2,
+                    iron: 3.3,
+                    zinc: 1.3,
+                    iodine: 2,
+                    selenium: 2.8,
+                    copper: 250,
+                    manganese: 0.5,
+                    chromium: 3,
+                    fiber: 8,
+                    omega3: 0.04
+                }
+            },
+            milk: {
+                name: 'Milk',
+                per100g: {
+                    calories: 62.5,
+                    protein: 3.3,
+                    fats: 3.3,
+                    carbohydrates: 4.8,
+                    vitaminA: 30,
+                    vitaminD: 2.5,
+                    vitaminE: 0.1,
+                    vitaminK: 0.3,
+                    vitaminC: 0,
+                    b1: 0.04,
+                    b2: 0.18,
+                    b3: 0.1,
+                    b5: 0.4,
+                    b6: 0.04,
+                    b7: 2,
+                    b9: 5,
+                    b12: 0.5,
+                    calcium: 120,
+                    phosphorus: 93,
+                    potassium: 150,
+                    magnesium: 11,
+                    sodium: 50,
+                    iron: 0.03,
+                    zinc: 0.4,
+                    iodine: 25,
+                    selenium: 3.7,
+                    copper: 25,
+                    manganese: 0.004,
+                    chromium: 1,
+                    fiber: 0,
+                    omega3: 0
+                }
+            },
+            oats: {
+                name: 'Rolled Oats',
+                per100g: {
+                    calories: 375,
+                    protein: 12.5,
+                    fats: 7.5,
+                    carbohydrates: 67.5,
+                    vitaminA: 0,
+                    vitaminD: 0,
+                    vitaminE: 0.7,
+                    vitaminK: 2,
+                    vitaminC: 0,
+                    b1: 0.8,
+                    b2: 0.14,
+                    b3: 1,
+                    b5: 1.3,
+                    b6: 0.12,
+                    b7: 20,
+                    b9: 56,
+                    b12: 0,
+                    calcium: 52,
+                    phosphorus: 366,
+                    potassium: 362,
+                    magnesium: 170,
+                    sodium: 6,
+                    iron: 4.3,
+                    zinc: 4,
+                    iodine: 5,
+                    selenium: 29,
+                    copper: 400,
+                    manganese: 3.8,
+                    chromium: 20,
+                    fiber: 10,
+                    omega3: 0.1
+                }
+            },
+            brown_rice: {
+                name: 'Brown Rice (cooked)',
+                per100g: {
+                    calories: 110,
+                    protein: 2.6,
+                    fats: 0.9,
+                    carbohydrates: 23,
+                    vitaminA: 0,
+                    vitaminD: 0,
+                    vitaminE: 0.4,
+                    vitaminK: 0.9,
+                    vitaminC: 0,
+                    b1: 0.2,
+                    b2: 0.05,
+                    b3: 1.6,
+                    b5: 0.4,
+                    b6: 0.15,
+                    b7: 3,
+                    b9: 10,
+                    b12: 0,
+                    calcium: 10,
+                    phosphorus: 83,
+                    potassium: 43,
+                    magnesium: 43,
+                    sodium: 5,
+                    iron: 0.4,
+                    zinc: 0.6,
+                    iodine: 2,
+                    selenium: 20,
+                    copper: 100,
+                    manganese: 1.8,
+                    chromium: 2,
+                    fiber: 1.8,
+                    omega3: 0.01
+                }
+            },
+            sourdough: {
+                name: 'Whole Wheat Sourdough',
+                per100g: {
+                    calories: 267,
+                    protein: 10,
+                    fats: 3.3,
+                    carbohydrates: 50,
+                    vitaminA: 0,
+                    vitaminD: 0,
+                    vitaminE: 0.5,
+                    vitaminK: 1,
+                    vitaminC: 0,
+                    b1: 0.4,
+                    b2: 0.2,
+                    b3: 4,
+                    b5: 0.9,
+                    b6: 0.2,
+                    b7: 5,
+                    b9: 40,
+                    b12: 0,
+                    calcium: 25,
+                    phosphorus: 200,
+                    potassium: 200,
+                    magnesium: 75,
+                    sodium: 500,
+                    iron: 2.5,
+                    zinc: 1.5,
+                    iodine: 10,
+                    selenium: 30,
+                    copper: 200,
+                    manganese: 2,
+                    chromium: 5,
+                    fiber: 4,
+                    omega3: 0.04
+                }
+            },
+            soba: {
+                name: 'Soba Noodles (cooked)',
+                per100g: {
+                    calories: 115,
+                    protein: 5.1,
+                    fats: 0.1,
+                    carbohydrates: 21,
+                    vitaminA: 0,
+                    vitaminD: 0,
+                    vitaminE: 0.1,
+                    vitaminK: 0,
+                    vitaminC: 0,
+                    b1: 0.1,
+                    b2: 0.03,
+                    b3: 0.5,
+                    b5: 0.2,
+                    b6: 0.05,
+                    b7: 2,
+                    b9: 8,
+                    b12: 0,
+                    calcium: 12,
+                    phosphorus: 55,
+                    potassium: 35,
+                    magnesium: 30,
+                    sodium: 60,
+                    iron: 0.5,
+                    zinc: 0.5,
+                    iodine: 1,
+                    selenium: 5,
+                    copper: 80,
+                    manganese: 0.4,
+                    chromium: 1,
+                    fiber: 1,
+                    omega3: 0.02
+                }
+            },
+            spinach: {
+                name: 'Spinach',
+                per100g: {
+                    calories: 23,
+                    protein: 2.9,
+                    fats: 0.4,
+                    carbohydrates: 3.6,
+                    vitaminA: 560,
+                    vitaminD: 0,
+                    vitaminE: 2,
+                    vitaminK: 483,
+                    vitaminC: 28,
+                    b1: 0.08,
+                    b2: 0.19,
+                    b3: 0.7,
+                    b5: 0.07,
+                    b6: 0.2,
+                    b7: 5,
+                    b9: 200,
+                    b12: 0,
+                    calcium: 99,
+                    phosphorus: 49,
+                    potassium: 560,
+                    magnesium: 80,
+                    sodium: 79,
+                    iron: 2.7,
+                    zinc: 0.5,
+                    iodine: 2,
+                    selenium: 1,
+                    copper: 130,
+                    manganese: 0.9,
+                    chromium: 2,
+                    fiber: 2.2,
+                    omega3: 0.1
+                }
+            },
+            green_pepper: {
+                name: 'Green Bell Pepper',
+                per100g: {
+                    calories: 20,
+                    protein: 0.9,
+                    fats: 0.2,
+                    carbohydrates: 4.6,
+                    vitaminA: 18,
+                    vitaminD: 0,
+                    vitaminE: 0.4,
+                    vitaminK: 7.4,
+                    vitaminC: 80,
+                    b1: 0.06,
+                    b2: 0.03,
+                    b3: 0.5,
+                    b5: 0.1,
+                    b6: 0.22,
+                    b7: 1.5,
+                    b9: 10,
+                    b12: 0,
+                    calcium: 10,
+                    phosphorus: 20,
+                    potassium: 175,
+                    magnesium: 10,
+                    sodium: 3,
+                    iron: 0.3,
+                    zinc: 0.1,
+                    iodine: 1,
+                    selenium: 0.3,
+                    copper: 66,
+                    manganese: 0.12,
+                    chromium: 1,
+                    fiber: 1.7,
+                    omega3: 0.02
+                }
+            },
+            red_pepper: {
+                name: 'Red Bell Pepper',
+                per100g: {
+                    calories: 31,
+                    protein: 1,
+                    fats: 0.3,
+                    carbohydrates: 6,
+                    vitaminA: 157,
+                    vitaminD: 0,
+                    vitaminE: 1.6,
+                    vitaminK: 4.9,
+                    vitaminC: 128,
+                    b1: 0.05,
+                    b2: 0.09,
+                    b3: 1,
+                    b5: 0.3,
+                    b6: 0.29,
+                    b7: 2,
+                    b9: 46,
+                    b12: 0,
+                    calcium: 7,
+                    phosphorus: 26,
+                    potassium: 211,
+                    magnesium: 12,
+                    sodium: 4,
+                    iron: 0.4,
+                    zinc: 0.25,
+                    iodine: 1,
+                    selenium: 0.1,
+                    copper: 17,
+                    manganese: 0.11,
+                    chromium: 1,
+                    fiber: 2.1,
+                    omega3: 0.03
+                }
+            },
+            broccoli: {
+                name: 'Broccoli',
+                per100g: {
+                    calories: 34,
+                    protein: 2.8,
+                    fats: 0.4,
+                    carbohydrates: 6.6,
+                    vitaminA: 31,
+                    vitaminD: 0,
+                    vitaminE: 0.8,
+                    vitaminK: 100,
+                    vitaminC: 90,
+                    b1: 0.07,
+                    b2: 0.12,
+                    b3: 0.6,
+                    b5: 0.6,
+                    b6: 0.18,
+                    b7: 1,
+                    b9: 63,
+                    b12: 0,
+                    calcium: 47,
+                    phosphorus: 66,
+                    potassium: 316,
+                    magnesium: 21,
+                    sodium: 33,
+                    iron: 0.7,
+                    zinc: 0.4,
+                    iodine: 2,
+                    selenium: 2.5,
+                    copper: 50,
+                    manganese: 0.2,
+                    chromium: 11,
+                    fiber: 2.6,
+                    omega3: 0.02
+                }
+            },
+            carrots: {
+                name: 'Carrots',
+                per100g: {
+                    calories: 41,
+                    protein: 0.9,
+                    fats: 0.2,
+                    carbohydrates: 9.6,
+                    vitaminA: 835,
+                    vitaminD: 0,
+                    vitaminE: 0.7,
+                    vitaminK: 13,
+                    vitaminC: 5.9,
+                    b1: 0.07,
+                    b2: 0.06,
+                    b3: 1,
+                    b5: 0.3,
+                    b6: 0.14,
+                    b7: 3,
+                    b9: 19,
+                    b12: 0,
+                    calcium: 33,
+                    phosphorus: 35,
+                    potassium: 320,
+                    magnesium: 12,
+                    sodium: 69,
+                    iron: 0.3,
+                    zinc: 0.2,
+                    iodine: 2,
+                    selenium: 0.1,
+                    copper: 45,
+                    manganese: 0.14,
+                    chromium: 3,
+                    fiber: 2.8,
+                    omega3: 0
+                }
+            },
+            brussels: {
+                name: 'Brussels Sprouts',
+                per100g: {
+                    calories: 37.5,
+                    protein: 3.4,
+                    fats: 0.3,
+                    carbohydrates: 8.9,
+                    vitaminA: 38,
+                    vitaminD: 0,
+                    vitaminE: 0.9,
+                    vitaminK: 187.5,
+                    vitaminC: 93.75,
+                    b1: 0.14,
+                    b2: 0.09,
+                    b3: 0.7,
+                    b5: 0.3,
+                    b6: 0.22,
+                    b7: 2,
+                    b9: 62.5,
+                    b12: 0,
+                    calcium: 42,
+                    phosphorus: 69,
+                    potassium: 389,
+                    magnesium: 23,
+                    sodium: 25,
+                    iron: 1.4,
+                    zinc: 0.4,
+                    iodine: 1,
+                    selenium: 1.6,
+                    copper: 70,
+                    manganese: 0.34,
+                    chromium: 5,
+                    fiber: 3.8,
+                    omega3: 0.1
+                }
+            },
+            cauliflower: {
+                name: 'Cauliflower',
+                per100g: {
+                    calories: 25,
+                    protein: 1.9,
+                    fats: 0.3,
+                    carbohydrates: 5,
+                    vitaminA: 0,
+                    vitaminD: 0,
+                    vitaminE: 0.08,
+                    vitaminK: 15.5,
+                    vitaminC: 48,
+                    b1: 0.05,
+                    b2: 0.06,
+                    b3: 0.5,
+                    b5: 0.7,
+                    b6: 0.18,
+                    b7: 1.5,
+                    b9: 57,
+                    b12: 0,
+                    calcium: 22,
+                    phosphorus: 44,
+                    potassium: 299,
+                    magnesium: 15,
+                    sodium: 30,
+                    iron: 0.4,
+                    zinc: 0.3,
+                    iodine: 1,
+                    selenium: 0.6,
+                    copper: 40,
+                    manganese: 0.16,
+                    chromium: 2,
+                    fiber: 2,
+                    omega3: 0.02
+                }
+            },
+            wood_ear: {
+                name: 'Wood Ear Mushrooms',
+                per100g: {
+                    calories: 133,
+                    protein: 3.3,
+                    fats: 0.7,
+                    carbohydrates: 30,
+                    vitaminA: 0,
+                    vitaminD: 5,
+                    vitaminE: 0,
+                    vitaminK: 0,
+                    vitaminC: 0,
+                    b1: 0.01,
+                    b2: 0.8,
+                    b3: 0.5,
+                    b5: 0.5,
+                    b6: 0.1,
+                    b7: 10,
+                    b9: 20,
+                    b12: 0,
+                    calcium: 16,
+                    phosphorus: 40,
+                    potassium: 100,
+                    magnesium: 25,
+                    sodium: 10,
+                    iron: 5,
+                    zinc: 0.5,
+                    iodine: 1,
+                    selenium: 10,
+                    copper: 800,
+                    manganese: 0.5,
+                    chromium: 10,
+                    fiber: 10,
+                    omega3: 0
+                }
+            },
+            berries: {
+                name: 'Mixed Berries',
+                per100g: {
+                    calories: 53,
+                    protein: 1,
+                    fats: 0.3,
+                    carbohydrates: 10,
+                    vitaminA: 3,
+                    vitaminD: 0,
+                    vitaminE: 0.6,
+                    vitaminK: 20,
+                    vitaminC: 60,
+                    b1: 0.03,
+                    b2: 0.04,
+                    b3: 0.4,
+                    b5: 0.3,
+                    b6: 0.05,
+                    b7: 2,
+                    b9: 25,
+                    b12: 0,
+                    calcium: 20,
+                    phosphorus: 20,
+                    potassium: 150,
+                    magnesium: 10,
+                    sodium: 1,
+                    iron: 0.7,
+                    zinc: 0.2,
+                    iodine: 1,
+                    selenium: 0.4,
+                    copper: 60,
+                    manganese: 0.3,
+                    chromium: 1,
+                    fiber: 4,
+                    omega3: 0.06
+                }
+            },
+            kiwifruit: {
+                name: 'Kiwifruit',
+                per100g: {
+                    calories: 61,
+                    protein: 1.1,
+                    fats: 0.5,
+                    carbohydrates: 14.7,
+                    vitaminA: 4,
+                    vitaminD: 0,
+                    vitaminE: 1.5,
+                    vitaminK: 40.3,
+                    vitaminC: 92.7,
+                    b1: 0.03,
+                    b2: 0.03,
+                    b3: 0.3,
+                    b5: 0.2,
+                    b6: 0.06,
+                    b7: 0.2,
+                    b9: 25,
+                    b12: 0,
+                    calcium: 34,
+                    phosphorus: 34,
+                    potassium: 312,
+                    magnesium: 17,
+                    sodium: 3,
+                    iron: 0.3,
+                    zinc: 0.1,
+                    iodine: 0.3,
+                    selenium: 0.2,
+                    copper: 130,
+                    manganese: 0.1,
+                    chromium: 0.3,
+                    fiber: 3,
+                    omega3: 0.04
+                }
+            },
+            almonds: {
+                name: 'Almonds',
+                per100g: {
+                    calories: 571,
+                    protein: 21.4,
+                    fats: 50,
+                    carbohydrates: 21.4,
+                    vitaminA: 0,
+                    vitaminD: 0,
+                    vitaminE: 25,
+                    vitaminK: 0,
+                    vitaminC: 0,
+                    b1: 0.2,
+                    b2: 1.1,
+                    b3: 3.6,
+                    b5: 0.5,
+                    b6: 0.14,
+                    b7: 30,
+                    b9: 44,
+                    b12: 0,
+                    calcium: 264,
+                    phosphorus: 481,
+                    potassium: 705,
+                    magnesium: 270,
+                    sodium: 1,
+                    iron: 3.7,
+                    zinc: 3.1,
+                    iodine: 2,
+                    selenium: 4,
+                    copper: 1000,
+                    manganese: 2.3,
+                    chromium: 5,
+                    fiber: 12.5,
+                    omega3: 0
+                }
+            },
+            walnuts: {
+                name: 'Walnuts',
+                per100g: {
+                    calories: 660,
+                    protein: 15.4,
+                    fats: 64.3,
+                    carbohydrates: 13.7,
+                    vitaminA: 1,
+                    vitaminD: 0,
+                    vitaminE: 0.7,
+                    vitaminK: 2.7,
+                    vitaminC: 1.3,
+                    b1: 0.34,
+                    b2: 0.15,
+                    b3: 1.1,
+                    b5: 0.6,
+                    b6: 0.54,
+                    b7: 20,
+                    b9: 98,
+                    b12: 0,
+                    calcium: 98,
+                    phosphorus: 346,
+                    potassium: 441,
+                    magnesium: 158,
+                    sodium: 2,
+                    iron: 2.9,
+                    zinc: 3.1,
+                    iodine: 3,
+                    selenium: 5,
+                    copper: 1600,
+                    manganese: 3.4,
+                    chromium: 5,
+                    fiber: 6.7,
+                    omega3: 9.3
+                }
+            },
+            pistachios: {
+                name: 'Pistachios',
+                per100g: {
+                    calories: 571,
+                    protein: 21.4,
+                    fats: 46.4,
+                    carbohydrates: 28.6,
+                    vitaminA: 26,
+                    vitaminD: 0,
+                    vitaminE: 2.3,
+                    vitaminK: 13,
+                    vitaminC: 5.6,
+                    b1: 0.87,
+                    b2: 0.16,
+                    b3: 1.3,
+                    b5: 0.5,
+                    b6: 1.7,
+                    b7: 10,
+                    b9: 51,
+                    b12: 0,
+                    calcium: 105,
+                    phosphorus: 490,
+                    potassium: 1025,
+                    magnesium: 121,
+                    sodium: 1,
+                    iron: 3.9,
+                    zinc: 2.2,
+                    iodine: 3,
+                    selenium: 7,
+                    copper: 1300,
+                    manganese: 1.2,
+                    chromium: 5,
+                    fiber: 10.3,
+                    omega3: 0.25
+                }
+            },
+            chia: {
+                name: 'Chia Seeds',
+                per100g: {
+                    calories: 583,
+                    protein: 25,
+                    fats: 33.3,
+                    carbohydrates: 41.7,
+                    vitaminA: 54,
+                    vitaminD: 0,
+                    vitaminE: 0.5,
+                    vitaminK: 0,
+                    vitaminC: 1.6,
+                    b1: 0.62,
+                    b2: 0.17,
+                    b3: 8.8,
+                    b5: 0,
+                    b6: 0,
+                    b7: 0,
+                    b9: 87,
+                    b12: 0,
+                    calcium: 631,
+                    phosphorus: 860,
+                    potassium: 407,
+                    magnesium: 335,
+                    sodium: 16,
+                    iron: 7.7,
+                    zinc: 4.6,
+                    iodine: 1,
+                    selenium: 55,
+                    copper: 900,
+                    manganese: 2.7,
+                    chromium: 5,
+                    fiber: 40,
+                    omega3: 16.7
+                }
+            },
+            avocado: {
+                name: 'Avocado',
+                per100g: {
+                    calories: 160,
+                    protein: 2,
+                    fats: 14.7,
+                    carbohydrates: 8.5,
+                    vitaminA: 7,
+                    vitaminD: 0,
+                    vitaminE: 2.1,
+                    vitaminK: 21,
+                    vitaminC: 10,
+                    b1: 0.07,
+                    b2: 0.13,
+                    b3: 1.7,
+                    b5: 1.4,
+                    b6: 0.26,
+                    b7: 4,
+                    b9: 81,
+                    b12: 0,
+                    calcium: 12,
+                    phosphorus: 52,
+                    potassium: 485,
+                    magnesium: 29,
+                    sodium: 7,
+                    iron: 0.6,
+                    zinc: 0.6,
+                    iodine: 2,
+                    selenium: 0.4,
+                    copper: 190,
+                    manganese: 0.14,
+                    chromium: 2,
+                    fiber: 6.7,
+                    omega3: 0.13
+                }
+            },
+            coconut_water: {
+                name: 'Coconut Water',
+                per100g: {
+                    calories: 19,
+                    protein: 0.7,
+                    fats: 0.2,
+                    carbohydrates: 3.7,
+                    vitaminA: 0,
+                    vitaminD: 0,
+                    vitaminE: 0,
+                    vitaminK: 0,
+                    vitaminC: 2.4,
+                    b1: 0.03,
+                    b2: 0.06,
+                    b3: 0.08,
+                    b5: 0.04,
+                    b6: 0.03,
+                    b7: 0,
+                    b9: 3,
+                    b12: 0,
+                    calcium: 24,
+                    phosphorus: 20,
+                    potassium: 250,
+                    magnesium: 25,
+                    sodium: 105,
+                    iron: 0.3,
+                    zinc: 0.1,
+                    iodine: 1,
+                    selenium: 1,
+                    copper: 40,
+                    manganese: 0.14,
+                    chromium: 1,
+                    fiber: 1.1,
+                    omega3: 0
+                }
+            },
+            bone_broth: {
+                name: 'Bone Broth',
+                per100g: {
+                    calories: 17,
+                    protein: 4,
+                    fats: 0.5,
+                    carbohydrates: 0,
+                    vitaminA: 0,
+                    vitaminD: 0,
+                    vitaminE: 0,
+                    vitaminK: 0,
+                    vitaminC: 0,
+                    b1: 0,
+                    b2: 0.01,
+                    b3: 0.3,
+                    b5: 0,
+                    b6: 0.01,
+                    b7: 0,
+                    b9: 0,
+                    b12: 0.1,
+                    calcium: 10,
+                    phosphorus: 30,
+                    potassium: 50,
+                    magnesium: 10,
+                    sodium: 200,
+                    iron: 0.3,
+                    zinc: 0.5,
+                    iodine: 5,
+                    selenium: 3,
+                    copper: 10,
+                    manganese: 0,
+                    chromium: 0,
+                    fiber: 0,
+                    omega3: 0
+                }
+            }
+        };
+        
+        
+        // Current intake tracking
+        let currentIntake = {};
+        let foodLog = [];
+        let totalCalories = 0;
+        let currentWeight = null;
+        let currentDate = new Date().toISOString().split('T')[0];
+
+        // Initialize current intake
+        function initializeIntake() {
+            for (let category in nutrientTargets) {
+                for (let nutrient in nutrientTargets[category]) {
+                    currentIntake[nutrient] = 0;
+                }
+            }
+        }
+
+        // --- NEW: Recalculate all nutrients and calories from foodLog ---
+        function recalculateCurrentIntakeAndCalories() {
+            initializeIntake();
+            totalCalories = 0;
+            for (let i = 0; i < foodLog.length; i++) {
+                const item = foodLog[i];
+                if (item.foodKey === 'custom') {
+                    let servingSize = item.servingSize || 100;
+                    let scale = item.amount / servingSize;
+                    let customNutrients = item.customNutrients || {};
+                    for (let nutrient in customNutrients) {
+                        if (currentIntake.hasOwnProperty(nutrient)) {
+                            currentIntake[nutrient] += customNutrients[nutrient] * scale;
+                        }
+                    }
+                    totalCalories += item.customCalories || 0;
+                } else if (item.foodKey === 'ai_custom') {
+                    let nutrients = item.aiNutrients || {};
+                    for (let nutrient in nutrients) {
+                        if (currentIntake.hasOwnProperty(nutrient)) {
+                            currentIntake[nutrient] += nutrients[nutrient];
+                        }
+                    }
+                    totalCalories += item.customCalories || 0;
+                } else {
+                    const food = foodDatabase[item.foodKey];
+                    if (!food) continue;
+                    const multiplier = item.amount / 100;
+                    for (let nutrient in food.per100g) {
+                        if (nutrient !== 'calories' && currentIntake.hasOwnProperty(nutrient)) {
+                            currentIntake[nutrient] += food.per100g[nutrient] * multiplier;
+                        }
+                    }
+                    if (item.calorieOverride !== null && item.calorieOverride !== undefined) {
+                        totalCalories += item.calorieOverride;
+                    } else {
+                        totalCalories += food.per100g.calories * multiplier;
+                    }
+                }
+            }
+        }
+        // --------------------------------------------------------------
+
+        // Show the custom nutrient modal
+        function toggleCustomNutrients() {
+            generateCustomNutrientInputs();
+            document.getElementById('customNutrientModal').style.display = 'block';
+        }
+
+        function closeCustomNutrientModal() {
+            document.getElementById('customNutrientModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('customNutrientModal');
+            if (event.target === modal) {
+                closeCustomNutrientModal();
+            }
+        }
+
+        function updateServingSizeLabel() {
+            const val = document.getElementById('customServingSize').value || 100;
+            document.getElementById('servingSizeLabel').textContent = val;
+        }
+
+        function generateCustomNutrientInputs() {
+            const grid = document.getElementById('customNutrientGridModal');
+            if (!grid) return;
+            let html = '';
+            for (let category in nutrientTargets) {
+                html += `<div class="nutrient-category-header">${category.replace(/([A-Z])/g, ' $1').toUpperCase()}</div>`;
+                for (let nutrient in nutrientTargets[category]) {
+                    const label = nutrientTargets[category][nutrient].unit
+                        ? `${nutrient} (${nutrientTargets[category][nutrient].unit})`
+                        : nutrient;
+                    html += `
+                    <div class="nutrient-input-item">
+                        <label for="customNutrient_${nutrient}">${label}</label>
+                        <input type="number" id="customNutrient_${nutrient}" min="0" step="any" value="">
+                    </div>
+                    `;
+                }
+            }
+            grid.innerHTML = html;
+        }
+
+        function saveCustomNutrients() {
+            let customNutrients = {};
+            for (let category in nutrientTargets) {
+                for (let nutrient in nutrientTargets[category]) {
+                    const input = document.getElementById('customNutrient_' + nutrient);
+                    if (input && input.value) {
+                        customNutrients[nutrient] = parseFloat(input.value) || 0;
+                    }
+                }
+            }
+            const servingSize = parseFloat(document.getElementById('customServingSize').value) || 100;
+            window._customFoodNutrients = {
+                servingSize: servingSize,
+                nutrients: customNutrients
+            };
+            closeCustomNutrientModal();
+            showNotification('Custom nutrients saved for ' + servingSize + 'g serving!', 'success');
+        }
+
+        
+        // Add food to log
+        function addFood() {
+            const foodSelect = document.getElementById('foodSelect');
+            const amountInput = document.getElementById('amountInput');
+            const calorieOverride = document.getElementById('calorieOverride');
+            const customFoodName = document.getElementById('customFoodName');
+            
+            if (!foodSelect.value || !amountInput.value) {
+                alert('Please select a food and enter an amount');
+                return;
+            }
+            
+            const amount = parseFloat(amountInput.value);
+            let foodName = '';
+            let calculatedCalories = 0;
+            
+            if (foodSelect.value === 'custom') {
+                foodName = customFoodName.value || 'Custom Food';
+                if (!calorieOverride.value) {
+                    alert('Please enter calories for custom food');
+                    return;
+                }
+                calculatedCalories = parseFloat(calorieOverride.value);
+
+                let customProfile = window._customFoodNutrients || {};
+                let servingSize = customProfile.servingSize || 100;
+                let customNutrients = customProfile.nutrients || {};
+
+                foodLog.push({
+                    name: foodName,
+                    amount: amount,
+                    foodKey: 'custom',
+                    customCalories: calculatedCalories,
+                    customNutrients: customNutrients,
+                    servingSize: servingSize,
+                    description: ''
+                });
+            } else {
+                const food = foodDatabase[foodSelect.value];
+                const multiplier = amount / 100;
+                foodName = food.name;
+                if (calorieOverride.value) {
+                    calculatedCalories = parseFloat(calorieOverride.value);
+                } else {
+                    calculatedCalories = food.per100g.calories * multiplier;
+                }
+                foodLog.push({
+                    name: foodName,
+                    amount: amount,
+                    foodKey: foodSelect.value,
+                    calorieOverride: calorieOverride.value ? calculatedCalories : null,
+                    description: ''
+                });
+            }
+            
+            // Reset inputs
+            foodSelect.value = '';
+            amountInput.value = '';
+            calorieOverride.value = '';
+            customFoodName.value = '';
+            document.getElementById('customFoodInput').style.display = 'none';
+            window._customFoodNutrients = {};
+
+            // --- RECOMPUTE TOTALS ---
+            recalculateCurrentIntakeAndCalories();
+            updateDisplay();
+            checkTimeForRecommendations();
+            saveToLocalStorage();
+        }
+
+        // Remove food from log
+        function removeFood(index) {
+            foodLog.splice(index, 1);
+            recalculateCurrentIntakeAndCalories();
+            updateDisplay();
+            saveToLocalStorage();
+            showNotification('Food removed', 'info');
+        }
+
+        // Update food amount when edited
+        function updateFoodAmount(index, newAmount) {
+            const amount = parseFloat(newAmount);
+            if (isNaN(amount) || amount < 0) return;
+            foodLog[index].amount = amount;
+            recalculateCurrentIntakeAndCalories();
+            updateDisplay();
+            saveToLocalStorage();
+            showNotification('Amount updated', 'success');
+        }
+
+        // Update food calories when edited
+        function updateFoodCalories(index, newCalories) {
+            const calories = parseFloat(newCalories);
+            if (isNaN(calories) || calories < 0) return;
+            const item = foodLog[index];
+            if (item.foodKey === 'custom') {
+                item.customCalories = calories;
+            } else {
+                item.calorieOverride = calories;
+            }
+            recalculateCurrentIntakeAndCalories();
+            updateDisplay();
+            saveToLocalStorage();
+            showNotification('Calories updated', 'success');
+        }
+
+        // Update food description when edited
+        function updateFoodDescription(index, newDescription) {
+            foodLog[index].description = newDescription;
+            saveToLocalStorage();
+        }
+
+        // Add AI-extracted food to the log
+        function addAIExtractedFood(data) {
+            const foodName = data.foodName || 'AI-Added Food';
+            const calories = data.calories || 0;
+            const amount = data.amount || 100;
+            const nutrients = data.nutrients || {};
+            foodLog.push({
+                name: foodName,
+                amount: amount,
+                foodKey: 'ai_custom',
+                customCalories: calories,
+                aiExtracted: true,
+                aiNutrients: nutrients,
+                description: 'AI-extracted'
+            });
+            recalculateCurrentIntakeAndCalories();
+            updateDisplay();
+            checkTimeForRecommendations();
+            saveToLocalStorage();
+        }
+
+        function recalculateCurrentIntakeAndCalories() {
+            initializeIntake();
+            totalCalories = 0;
+            for (let i = 0; i < foodLog.length; i++) {
+                const item = foodLog[i];
+                if (item.foodKey === 'custom') {
+                    let servingSize = item.servingSize || 100;
+                    let scale = item.amount / servingSize;
+                    let customNutrients = item.customNutrients || {};
+                    for (let nutrient in customNutrients) {
+                        if (currentIntake.hasOwnProperty(nutrient)) {
+                            currentIntake[nutrient] += customNutrients[nutrient] * scale;
+                        }
+                    }
+                    totalCalories += item.customCalories || 0;
+                } else if (item.foodKey === 'ai_custom') {
+                    let nutrients = item.aiNutrients || {};
+                    for (let nutrient in nutrients) {
+                        if (currentIntake.hasOwnProperty(nutrient)) {
+                            currentIntake[nutrient] += nutrients[nutrient];
+                        }
+                    }
+                    totalCalories += item.customCalories || 0;
+                } else {
+                    const food = foodDatabase[item.foodKey];
+                    if (!food) continue;
+                    const multiplier = item.amount / 100;
+                    for (let nutrient in food.per100g) {
+                        if (nutrient !== 'calories' && currentIntake.hasOwnProperty(nutrient)) {
+                            currentIntake[nutrient] += food.per100g[nutrient] * multiplier;
+                        }
+                    }
+                    if (item.calorieOverride !== null && item.calorieOverride !== undefined) {
+                        totalCalories += item.calorieOverride;
+                    } else {
+                        totalCalories += food.per100g.calories * multiplier;
+                    }
+                }
+            }
+        }
+
+        
+        // Show/hide custom food name input
+        document.getElementById('foodSelect').addEventListener('change', function() {
+            const customInput = document.getElementById('customFoodInput');
+            if (this.value === 'custom') {
+                customInput.style.display = 'flex';
+            } else {
+                customInput.style.display = 'none';
+            }
+        });
+        
+        // Process AI text input
+        async function processAIInput() {
+            const aiInput = document.getElementById('aiTextInput').value.trim();
+            if (!aiInput) {
+                showNotification('Please enter a food description', 'warning');
+                return;
+            }
+            
+            const statusDiv = document.getElementById('aiProcessingStatus');
+            const processBtn = document.getElementById('aiProcessBtn');
+            
+            // Show processing status
+            statusDiv.style.display = 'block';
+            statusDiv.textContent = 'Processing your input with AI...';
+            processBtn.disabled = true;
+            
+            try {
+                // Create a structured prompt for Claude
+                const prompt = `Extract nutrition information from this food description and return ONLY a valid JSON object:
+                
+"${aiInput}"
+
+Analyze the text and extract:
+1. Food name/description
+2. Calories (if mentioned)
+3. Any nutrients mentioned with their amounts
+
+Return a JSON object in this EXACT format (use 0 for any nutrient not mentioned):
+{
+    "foodName": "extracted food name",
+    "calories": number or 0,
+    "amount": number (default 100 if not specified),
+    "nutrients": {
+        "protein": number in grams,
+        "fats": number in grams,
+        "carbohydrates": number in grams,
+        "fiber": number in grams,
+        "vitaminA": number in mcg,
+        "vitaminC": number in mg,
+        "vitaminD": number in mcg,
+        "vitaminE": number in mg,
+        "vitaminK": number in mcg,
+        "b1": number in mg,
+        "b2": number in mg,
+        "b3": number in mg,
+        "b5": number in mg,
+        "b6": number in mg,
+        "b7": number in mcg,
+        "b9": number in mcg,
+        "b12": number in mcg,
+        "calcium": number in mg,
+        "iron": number in mg,
+        "magnesium": number in mg,
+        "phosphorus": number in mg,
+        "potassium": number in mg,
+        "sodium": number in mg,
+        "zinc": number in mg,
+        "copper": number in mcg,
+        "manganese": number in mg,
+        "selenium": number in mcg,
+        "chromium": number in mcg,
+        "iodine": number in mcg,
+        "omega3": number in grams
+    }
+}
+
+IMPORTANT: 
+- Convert all units to the specified units above (e.g., if user says "20g iron", convert to 20mg)
+- If amount/serving size is mentioned (e.g., "2 cups", "150g"), extract it as "amount"
+- Return ONLY the JSON object, no other text
+- Default amount to 100 if not specified
+- Use 0 for any nutrient not mentioned`;
+
+                const response = await fetch("https://api.anthropic.com/v1/messages", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        model: "claude-sonnet-4-20250514",
+                        max_tokens: 1000,
+                        messages: [
+                            { role: "user", content: prompt }
+                        ]
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('AI processing failed');
+                }
+                
+                const data = await response.json();
+                const responseText = data.content[0].text;
+                
+                // Parse the JSON response
+                let parsedData;
+                try {
+                    // Remove any markdown formatting if present
+                    const cleanJson = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+                    parsedData = JSON.parse(cleanJson);
+                } catch (e) {
+                    throw new Error('Failed to parse AI response');
+                }
+                
+                // Add the extracted food to the log
+                addAIExtractedFood(parsedData);
+                
+                // Clear the input and show success
+                document.getElementById('aiTextInput').value = '';
+                statusDiv.style.display = 'none';
+                showNotification(`Added: ${parsedData.foodName}`, 'success');
+                
+            } catch (error) {
+                console.error('AI processing error:', error);
+                statusDiv.textContent = 'Error processing input. Please try again or use manual entry.';
+                statusDiv.style.color = '#dc3545';
+                showNotification('AI processing failed. Please use manual entry.', 'error');
+            } finally {
+                processBtn.disabled = false;
+            }
+        }
+        
+        // Add AI-extracted food to the log
+        function addAIExtractedFood(data) {
+            const foodName = data.foodName || 'AI-Added Food';
+            const calories = data.calories || 0;
+            const amount = data.amount || 100;
+            const nutrients = data.nutrients || {};
+            
+            // Add to food log with stored nutrients for removal
+            foodLog.push({
+                name: foodName,
+                amount: amount,
+                foodKey: 'ai_custom',
+                customCalories: calories,
+                aiExtracted: true,
+                aiNutrients: nutrients, // Store nutrients for removal
+                description: 'AI-extracted'
+            });
+            
+            // Update calories
+            totalCalories += calories;
+            
+            // Update nutrients
+            for (let nutrient in nutrients) {
+                if (currentIntake.hasOwnProperty(nutrient) && nutrients[nutrient] > 0) {
+                    currentIntake[nutrient] += nutrients[nutrient];
+                }
+            }
+            
+            // Update display
+            updateDisplay();
+            checkTimeForRecommendations();
+            
+            // Auto-save
+            saveToLocalStorage();
+        }
+        
+        // Add Enter key support for AI input
+        document.addEventListener('DOMContentLoaded', function() {
+            const aiInput = document.getElementById('aiTextInput');
+            if (aiInput) {
+                aiInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        processAIInput();
+                    }
+                });
+            }
+        });
+        
+        // Update food amount when edited
+        function updateFoodAmount(index, newAmount) {
+            const amount = parseFloat(newAmount);
+            if (isNaN(amount) || amount < 0) return;
+            
+            const item = foodLog[index];
+            const oldAmount = item.amount;
+            
+            if (item.foodKey !== 'custom') {
+                const food = foodDatabase[item.foodKey];
+                const oldMultiplier = oldAmount / 100;
+                const newMultiplier = amount / 100;
+                
+                // Update calories
+                const oldCalories = item.calorieOverride || (food.per100g.calories * oldMultiplier);
+                const newCalories = food.per100g.calories * newMultiplier;
+                totalCalories = totalCalories - oldCalories + newCalories;
+                
+                // Update nutrients
+                for (let nutrient in food.per100g) {
+                    if (nutrient !== 'calories' && currentIntake.hasOwnProperty(nutrient)) {
+                        currentIntake[nutrient] -= food.per100g[nutrient] * oldMultiplier;
+                        currentIntake[nutrient] += food.per100g[nutrient] * newMultiplier;
+                        currentIntake[nutrient] = Math.max(0, currentIntake[nutrient]);
+                    }
+                }
+                
+                // Clear calorie override when amount is edited
+                item.calorieOverride = null;
+            }
+            
+            item.amount = amount;
+            updateDisplay();
+            saveToLocalStorage();
+            showNotification('Amount updated', 'success');
+        }
+        
+        // Update food calories when edited
+        function updateFoodCalories(index, newCalories) {
+            const calories = parseFloat(newCalories);
+            if (isNaN(calories) || calories < 0) return;
+            
+            const item = foodLog[index];
+            
+            if (item.foodKey === 'custom') {
+                // For custom foods, update the stored calories
+                totalCalories = totalCalories - item.customCalories + calories;
+                item.customCalories = calories;
+            } else {
+                // For database foods, this becomes a calorie override
+                const food = foodDatabase[item.foodKey];
+                const calculatedCalories = food.per100g.calories * (item.amount / 100);
+                const oldCalories = item.calorieOverride || calculatedCalories;
+                
+                totalCalories = totalCalories - oldCalories + calories;
+                item.calorieOverride = calories;
+            }
+            
+            updateDisplay();
+            saveToLocalStorage();
+            showNotification('Calories updated', 'success');
+        }
+        
+        // Update food description when edited
+        function updateFoodDescription(index, newDescription) {
+            foodLog[index].description = newDescription;
+            saveToLocalStorage();
+        }
+        
+        // Remove food from log
+        function removeFood(index) {
+            const item = foodLog[index];
+            
+            if (item.foodKey === 'custom') {
+                // Remove custom food - only affects calories
+                totalCalories -= item.customCalories;
+            } else if (item.foodKey === 'ai_custom') {
+                // Remove AI-extracted food - affects calories and nutrients
+                totalCalories -= item.customCalories;
+                
+                // Remove AI-extracted nutrients if they exist
+                if (item.aiNutrients) {
+                    for (let nutrient in item.aiNutrients) {
+                        if (currentIntake.hasOwnProperty(nutrient)) {
+                            currentIntake[nutrient] -= item.aiNutrients[nutrient];
+                            currentIntake[nutrient] = Math.max(0, currentIntake[nutrient]);
+                        }
+                    }
+                }
+            } else {
+                const food = foodDatabase[item.foodKey];
+                const multiplier = item.amount / 100;
+                
+                // If there was a calorie override, use it; otherwise calculate
+                if (item.calorieOverride !== null && item.calorieOverride !== undefined) {
+                    totalCalories -= item.calorieOverride;
+                } else {
+                    totalCalories -= food.per100g.calories * multiplier;
+                }
+                
+                // Subtract other nutrients
+                for (let nutrient in food.per100g) {
+                    if (nutrient !== 'calories' && currentIntake.hasOwnProperty(nutrient)) {
+                        currentIntake[nutrient] -= food.per100g[nutrient] * multiplier;
+                        currentIntake[nutrient] = Math.max(0, currentIntake[nutrient]);
+                    }
+                }
+            }
+            
+            // Remove from log
+            foodLog.splice(index, 1);
+            
+            // Update display
+            updateDisplay();
+            saveToLocalStorage();
+            showNotification('Food removed', 'info');
+        }
+        
+        // Update all displays
+        function updateDisplay() {
+            updateCalorieBar();
+            updateFoodLog();
+            updateNutrientTable();
+        }
+        
+        // Update calorie progress bar
+        function updateCalorieBar() {
+            const progress = (totalCalories / 2000) * 100;
+            const progressBar = document.getElementById('calorieProgress');
+            const calorieText = document.getElementById('calorieText');
+            const percentText = document.getElementById('caloriePercent');
+            
+            progressBar.style.width = Math.min(progress, 100) + '%';
+            calorieText.textContent = `${Math.round(totalCalories)} / 2000 kcal`;
+            percentText.textContent = `${Math.round(progress)}% of daily goal`;
+            
+            if (progress > 100) {
+                progressBar.style.background = 'linear-gradient(90deg, #e74c3c 0%, #c0392b 100%)';
+            }
+        }
+        
+        // Update food log display with editable fields
+        function updateFoodLog() {
+            const logList = document.getElementById('foodLogList');
+            
+            if (foodLog.length === 0) {
+                logList.innerHTML = '<p style="text-align: center; color: #718096; padding: 20px;">No food logged yet today</p>';
+                return;
+            }
+            
+            // Create header
+            let logHTML = `
+                <div class="food-log-header">
+                    <div>Food Name</div>
+                    <div style="text-align: center;">Amount (g)</div>
+                    <div style="text-align: center;">Calories</div>
+                    <div>Description</div>
+                    <div style="width: 70px;"></div>
+                </div>
+            `;
+            
+            // Add food items with editable fields
+            foodLog.forEach((item, index) => {
+                let calories = 0;
+                
+                if (item.foodKey === 'custom') {
+                    calories = item.customCalories;
+                } else {
+                    const food = foodDatabase[item.foodKey];
+                    calories = item.calorieOverride || (food.per100g.calories * item.amount / 100);
+                }
+                
+                logHTML += `
+                    <div class="log-item">
+                        <div class="log-item-name">${item.name}</div>
+                        <input type="number" 
+                            class="log-item-editable" 
+                            value="${item.amount}" 
+                            min="0" 
+                            step="0.1"
+                            onchange="updateFoodAmount(${index}, this.value)"
+                            title="Edit amount">
+                        <input type="number" 
+                            class="log-item-editable" 
+                            value="${Math.round(calories)}" 
+                            min="0"
+                            onchange="updateFoodCalories(${index}, this.value)"
+                            title="Edit calories">
+                        <input type="text" 
+                            class="log-item-description" 
+                            value="${item.description || ''}" 
+                            placeholder="Add notes..."
+                            onchange="updateFoodDescription(${index}, this.value)"
+                            title="Add description">
+                        <button class="remove-btn" onclick="removeFood(${index})">Remove</button>
+                    </div>
+                `;
+            });
+            
+            // Add total row
+            logHTML += `
+                <div class="log-total-row">
+                    <div>Total</div>
+                    <div style="text-align: center;">-</div>
+                    <div style="text-align: center; color: #667eea; font-size: 1.1em;">${Math.round(totalCalories)} kcal</div>
+                    <div></div>
+                    <div style="width: 70px;"></div>
+                </div>
+            `;
+            
+            logList.innerHTML = logHTML;
+        }
+        
+        // Update nutrient table
+        function updateNutrientTable() {
+            const tbody = document.getElementById('nutrientTableBody');
+            tbody.innerHTML = '';
+            
+            const categoryNames = {
+                macronutrients: 'MACRONUTRIENTS',
+                fatSolubleVitamins: 'FAT-SOLUBLE VITAMINS',
+                waterSolubleVitamins: 'WATER-SOLUBLE VITAMINS',
+                majorMinerals: 'MAJOR MINERALS',
+                traceMinerals: 'TRACE MINERALS',
+                additional: 'ADDITIONAL'
+            };
+            
+            const nutrientNames = {
+                protein: 'Protein',
+                fats: 'Fats',
+                carbohydrates: 'Carbohydrates',
+                vitaminA: 'Vitamin A',
+                vitaminD: 'Vitamin D',
+                vitaminE: 'Vitamin E',
+                vitaminK: 'Vitamin K',
+                vitaminC: 'Vitamin C',
+                b1: 'B1 (Thiamine)',
+                b2: 'B2 (Riboflavin)',
+                b3: 'B3 (Niacin)',
+                b5: 'B5 (Pantothenic Acid)',
+                b6: 'B6',
+                b7: 'B7 (Biotin)',
+                b9: 'B9 (Folate)',
+                b12: 'B12',
+                calcium: 'Calcium',
+                phosphorus: 'Phosphorus',
+                potassium: 'Potassium',
+                magnesium: 'Magnesium',
+                sodium: 'Sodium',
+                iron: 'Iron',
+                zinc: 'Zinc',
+                iodine: 'Iodine',
+                selenium: 'Selenium',
+                copper: 'Copper',
+                manganese: 'Manganese',
+                chromium: 'Chromium',
+                fiber: 'Fiber',
+                omega3: 'Omega-3'
+            };
+            
+            for (let category in nutrientTargets) {
+                // Add category header
+                const headerRow = document.createElement('tr');
+                headerRow.className = 'group-header';
+                headerRow.innerHTML = `<td colspan="5">${categoryNames[category]}</td>`;
+                tbody.appendChild(headerRow);
+                
+                // Add nutrient rows
+                for (let nutrient in nutrientTargets[category]) {
+                    const target = nutrientTargets[category][nutrient];
+                    const current = currentIntake[nutrient] || 0;
+                    const percentage = (current / target.target) * 100;
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${nutrientNames[nutrient] || nutrient}</td>
+                        <td>${target.target}${target.unit}</td>
+                        <td>${current.toFixed(1)}${target.unit}</td>
+                        <td>${target.benefit}</td>
+                        <td class="progress-cell">
+                            <div class="progress-bar">
+                                <div class="progress-fill ${getProgressClass(percentage)}" 
+                                     style="width: ${Math.min(percentage, 100)}%">
+                                    ${Math.round(percentage)}%
+                                </div>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                }
+            }
+        }
+        
+        // Get progress bar color class
+        function getProgressClass(percentage) {
+            if (percentage < 25) return 'progress-low';
+            if (percentage < 50) return 'progress-medium';
+            if (percentage < 100) return 'progress-good';
+            return 'progress-complete';
+        }
+        
+        // Check time and show recommendations
+        function checkTimeForRecommendations() {
+            const now = new Date();
+            const hours = now.getHours();
+            
+            // Show recommendations after 4pm or if calories > 1200
+            if (hours >= 16 || totalCalories > 1200) {
+                generateRecommendations();
+            }
+        }
+        
+        // Generate recommendations
+        function generateRecommendations() {
+            const recommendations = [];
+            const remainingCalories = 2000 - totalCalories;
+            
+            // Check critical nutrients for priorities
+            const criticalNutrients = [
+                { name: 'Protein', key: 'protein', category: 'macronutrients', priority: 'high' },
+                { name: 'Vitamin A', key: 'vitaminA', category: 'fatSolubleVitamins', priority: 'high' },
+                { name: 'Vitamin C', key: 'vitaminC', category: 'waterSolubleVitamins', priority: 'high' },
+                { name: 'Omega-3', key: 'omega3', category: 'additional', priority: 'high' },
+                { name: 'Fiber', key: 'fiber', category: 'additional', priority: 'medium' }
+            ];
+            
+            criticalNutrients.forEach(nutrient => {
+                const target = nutrientTargets[nutrient.category][nutrient.key].target;
+                const current = currentIntake[nutrient.key] || 0;
+                const percentage = (current / target) * 100;
+                
+                if (percentage < 75) {
+                    const needed = target - current;
+                    const foods = findBestFoodsForNutrient(nutrient.key, needed, remainingCalories);
+                    
+                    if (foods.length > 0) {
+                        recommendations.push({
+                            priority: nutrient.priority,
+                            text: `${nutrient.name}: Need ${needed.toFixed(1)}${nutrientTargets[nutrient.category][nutrient.key].unit}. 
+                                   Try: ${foods.join(' or ')}`
+                        });
+                    }
+                }
+            });
+            
+            // Display recommendations
+            const recDiv = document.getElementById('recommendations');
+            const recList = document.getElementById('recommendationsList');
+            
+            if (recommendations.length > 0) {
+                recDiv.style.display = 'block';
+                recList.innerHTML = recommendations
+                    .sort((a, b) => a.priority === 'high' ? -1 : 1)
+                    .map(rec => `<div class="recommendation-item priority-${rec.priority}">${rec.text}</div>`)
+                    .join('');
+            }
+        }
+        
+        // Find best foods for a nutrient
+        function findBestFoodsForNutrient(nutrient, needed, calorieLimit) {
+            const suggestions = [];
+            
+            for (let foodKey in foodDatabase) {
+                const food = foodDatabase[foodKey];
+                const nutrientPer100g = food.per100g[nutrient] || 0;
+                
+                if (nutrientPer100g > 0) {
+                    const amountNeeded = (needed / nutrientPer100g) * 100;
+                    const calories = (amountNeeded / 100) * food.per100g.calories;
+                    
+                    if (calories <= calorieLimit && amountNeeded <= 200) {
+                        suggestions.push({
+                            food: food.name,
+                            amount: Math.round(amountNeeded),
+                            calories: Math.round(calories),
+                            efficiency: nutrientPer100g / food.per100g.calories
+                        });
+                    }
+                }
+            }
+            
+            return suggestions
+                .sort((a, b) => b.efficiency - a.efficiency)
+                .slice(0, 3)
+                .map(s => `${s.amount}g ${s.food} (${s.calories} cal)`);
+        }
+        
+        // Save to Local Storage
+        function saveToLocalStorage() {
+            const today = currentDate || new Date().toISOString().split('T')[0];
+            const todayData = {
+                date: today,
+                foodLog: foodLog,
+                totalCalories: totalCalories,
+                currentIntake: currentIntake,
+                weight: currentWeight,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Save today's data
+            localStorage.setItem('nutrition_' + today, JSON.stringify(todayData));
+            
+            // Update history index
+            let history = JSON.parse(localStorage.getItem('nutrition_history') || '[]');
+            if (!history.includes(today)) {
+                history.push(today);
+                history.sort().reverse(); // Most recent first
+                localStorage.setItem('nutrition_history', JSON.stringify(history));
+            }
+        }
+        
+        // Save weight
+        function saveWeight() {
+            const weightInput = document.getElementById('weightInput');
+            const weight = parseFloat(weightInput.value);
+            
+            if (!weight || weight <= 0) {
+                showNotification('Please enter a valid weight', 'warning');
+                return;
+            }
+            
+            currentWeight = weight;
+            document.getElementById('weightDisplay').textContent = `${weight} kg saved`;
+            
+            // Auto-save with weight
+            saveToLocalStorage();
+            showNotification(`Weight ${weight} kg saved!`, 'success');
+            
+            // Calculate and show weight change if previous data exists
+            showWeightChange();
+        }
+        
+        // Show weight change from previous entry
+        function showWeightChange() {
+            const history = JSON.parse(localStorage.getItem('nutrition_history') || '[]');
+            let previousWeight = null;
+            let previousDate = null;
+            
+            // Find the most recent weight before current date
+            for (let date of history) {
+                if (date < currentDate) {
+                    const data = JSON.parse(localStorage.getItem('nutrition_' + date) || '{}');
+                    if (data.weight) {
+                        previousWeight = data.weight;
+                        previousDate = date;
+                        break;
+                    }
+                }
+            }
+            
+            if (previousWeight && currentWeight) {
+                const change = currentWeight - previousWeight;
+                const changeText = change > 0 ? `+${change.toFixed(1)}` : change.toFixed(1);
+                const changeColor = change > 0 ? '#dc3545' : '#28a745';
+                const daysDiff = Math.floor((new Date(currentDate) - new Date(previousDate)) / (1000 * 60 * 60 * 24));
+                
+                document.getElementById('weightDisplay').innerHTML = `
+                    ${currentWeight} kg saved 
+                    <span style="color: ${changeColor}; margin-left: 10px;">
+                        (${changeText} kg from ${daysDiff} day${daysDiff !== 1 ? 's' : ''} ago)
+                    </span>
+                `;
+            }
+        }
+        
+        // Load from Local Storage
+        function loadFromLocalStorage(date) {
+            currentDate = date;
+            const data = localStorage.getItem('nutrition_' + date);
+            if (data) {
+                const parsed = JSON.parse(data);
+                foodLog = parsed.foodLog || [];
+                currentWeight = parsed.weight || null;
+                // Recalculate nutrients/calories from foodLog (not from saved currentIntake)
+                recalculateCurrentIntakeAndCalories();
+                
+                // Display weight if exists
+                if (currentWeight) {
+                    document.getElementById('weightInput').value = currentWeight;
+                    document.getElementById('weightDisplay').textContent = `${currentWeight} kg`;
+                    showWeightChange();
+                } else {
+                    document.getElementById('weightInput').value = '';
+                    document.getElementById('weightDisplay').textContent = '';
+                }
+                
+                // Ensure all nutrients are initialized
+                for (let category in nutrientTargets) {
+                    for (let nutrient in nutrientTargets[category]) {
+                        if (!(nutrient in currentIntake)) {
+                            currentIntake[nutrient] = 0;
+                        }
+                    }
+                }
+                
+                updateDisplay();
+                showNotification('Data loaded for ' + date, 'info');
+            } else {
+                // Clear current data if no saved data exists
+                clearToday(false);
+                document.getElementById('weightInput').value = '';
+                document.getElementById('weightDisplay').textContent = '';
+            }
+        }
+        
+        // Load specific date
+        function loadDate(date) {
+            if (date) {
+                loadFromLocalStorage(date);
+                // Update header to show selected date
+                const dateObj = new Date(date + 'T00:00:00');
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                document.getElementById('currentDate').textContent = dateObj.toLocaleDateString('en-US', options);
+            }
+        }
+        
+        // Show history
+        function showHistory() {
+            const historyList = document.getElementById('historyList');
+            const historyItems = document.getElementById('historyItems');
+            const history = JSON.parse(localStorage.getItem('nutrition_history') || '[]');
+            
+            if (history.length === 0) {
+                historyItems.innerHTML = '<p>No saved data yet</p>';
+            } else {
+                historyItems.innerHTML = history.map(date => {
+                    const data = JSON.parse(localStorage.getItem('nutrition_' + date) || '{}');
+                    const calories = data.totalCalories || 0;
+                    const weight = data.weight || null;
+                    return `
+                        <div style="padding: 8px; margin: 5px 0; background: white; border-radius: 5px; cursor: pointer; display: flex; justify-content: space-between;"
+                             onclick="loadDate('${date}')">
+                            <span>${date}</span>
+                            <span>
+                                ${Math.round(calories)} cal
+                                ${weight ? ` | ${weight} kg` : ''}
+                            </span>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            historyList.style.display = historyList.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        // Export to CSV with description column
+        function exportToCSV() {
+            const history = JSON.parse(localStorage.getItem('nutrition_history') || '[]');
+            
+            if (history.length === 0) {
+                alert('No data to export');
+                return;
+            }
+            
+            // Create CSV header with Description column
+            let csv = 'Date,Weight (kg),Weight Change (kg),Total Calories,Protein (g),Fats (g),Carbs (g),Fiber (g),Vitamin A (mcg),Vitamin C (mg),Vitamin D (mcg),Iron (mg),Calcium (mg),Omega-3 (g),Foods Eaten,Food Descriptions\n';
+            
+            // Track previous weight for change calculation
+            let previousWeight = null;
+            
+            // Add data for each day (reverse to show oldest first in CSV)
+            history.slice().reverse().forEach(date => {
+                const data = JSON.parse(localStorage.getItem('nutrition_' + date) || '{}');
+                if (data.totalCalories || data.weight) {
+                    const intake = data.currentIntake || {};
+                    
+                    // Create foods list with amounts
+                    const foods = (data.foodLog || []).map(f => `${f.name}(${f.amount}g)`).join('; ');
+                    
+                    // Create descriptions list - only include non-empty descriptions
+                    const descriptions = (data.foodLog || [])
+                        .filter(f => f.description && f.description.trim() !== '')
+                        .map(f => `${f.name}: ${f.description}`)
+                        .join('; ');
+                    
+                    const weightChange = (data.weight && previousWeight) ? (data.weight - previousWeight).toFixed(1) : '';
+                    
+                    csv += `${date},`;
+                    csv += `${data.weight || ''},`;
+                    csv += `${weightChange},`;
+                    csv += `${Math.round(data.totalCalories || 0)},`;
+                    csv += `${(intake.protein || 0).toFixed(1)},`;
+                    csv += `${(intake.fats || 0).toFixed(1)},`;
+                    csv += `${(intake.carbohydrates || 0).toFixed(1)},`;
+                    csv += `${(intake.fiber || 0).toFixed(1)},`;
+                    csv += `${(intake.vitaminA || 0).toFixed(1)},`;
+                    csv += `${(intake.vitaminC || 0).toFixed(1)},`;
+                    csv += `${(intake.vitaminD || 0).toFixed(1)},`;
+                    csv += `${(intake.iron || 0).toFixed(1)},`;
+                    csv += `${(intake.calcium || 0).toFixed(1)},`;
+                    csv += `${(intake.omega3 || 0).toFixed(2)},`;
+                    csv += `"${foods}",`;
+                    csv += `"${descriptions}"\n`;
+                    
+                    // Update previous weight for next iteration
+                    if (data.weight) {
+                        previousWeight = data.weight;
+                    }
+                }
+            });
+            
+            // Download CSV
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `nutrition_and_weight_tracker_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            showNotification('CSV exported successfully!', 'success');
+        }
+        
+        // Clear today's data
+        function clearToday(showMessage = true) {
+            if (showMessage && !confirm('Are you sure you want to clear today\'s data?')) {
+                return;
+            }
+            
+            foodLog = [];
+            totalCalories = 0;
+            initializeIntake();
+            updateDisplay();
+            
+            if (showMessage) {
+                showNotification('Today\'s data cleared', 'info');
+            }
+        }
+        
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            
+            const colors = {
+                success: '#28a745',
+                info: '#17a2b8',
+                warning: '#ffc107',
+                error: '#dc3545'
+            };
+            
+            notification.style.background = colors[type] || colors.info;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
+        // Set current date
+        function setCurrentDate() {
+            const date = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = date.toLocaleDateString('en-US', options);
+        }
+        
+        // Initialize app
+        initializeIntake();
+        setCurrentDate();
+        updateDisplay();
+        setInterval(checkTimeForRecommendations, 60000);
+        window.addEventListener('load', function() {
+            const today = new Date().toISOString().split('T')[0];
+            loadFromLocalStorage(today);
+        });
+    </script>
+
+<!-- Custom Nutrient Modal -->
+<div id="customNutrientModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Custom Food Nutrients (per <span id="servingSizeLabel">100</span>g)</h3>
+      <button class="close-modal" onclick="closeCustomNutrientModal()">&times;</button>
+    </div>
+    <div class="nutrient-input-item" style="margin-bottom:15px;">
+      <label for="customServingSize"><b>Serving Size (g/ml):</b></label>
+      <input type="number" id="customServingSize" min="1" step="any" value="100" style="width:120px;" onchange="updateServingSizeLabel()">
+      <span style="color:#888; font-size:13px;">All nutrients below are per this serving size.</span>
+    </div>
+    <div class="preset-buttons" style="margin-bottom:10px;">
+      <button class="preset-btn" onclick="clearAllNutrients()">Clear All</button>
+      <button class="preset-btn" onclick="loadPreset('protein_shake')">Protein Shake</button>
+      <button class="preset-btn" onclick="loadPreset('multivitamin')">Multivitamin</button>
+      <button class="preset-btn" onclick="loadPreset('protein_bar')">Protein Bar</button>
+      <button class="preset-btn" onclick="loadPreset('supplement')">Supplement</button>
+    </div>
+    <div class="nutrient-input-grid" id="customNutrientGridModal">
+      <!-- Nutrient inputs will be generated here -->
+    </div>
+    <div style="margin-top:15px; text-align:right;">
+      <button onclick="saveCustomNutrients()">Save Nutrients</button>
+    </div>
+  </div>
+</div>
+
+
+</body>
+</html>
